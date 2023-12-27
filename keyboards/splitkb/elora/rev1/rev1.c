@@ -247,7 +247,6 @@ bool oled_task_kb(void) {
     }
 
     if (is_keyboard_master()) {
-        oled_write_P(PSTR("Hello Nik\n\n"), false);
 
 #ifdef WPM_ENABLE
         uint8_t n = get_current_wpm();
@@ -262,13 +261,22 @@ bool oled_task_kb(void) {
 
         // Keyboard Layer Status
         uint8_t layer = get_highest_layer(layer_state | default_layer_state);
-        oled_write_P(PSTR("Layer: "), false);
+        oled_write_P(PSTR("Layer:"), false);
         switch (layer) {
             case _QWERTY:
                 oled_write_P(PSTR("Base\n"), false);
                 break;
             case _NAV:
                 oled_write_P(PSTR("Nav\n"), false);
+                break;
+             case _SYM:
+                oled_write_P(PSTR("Sym\n"), false);
+                break;
+             case _FUNCTION:
+                oled_write_P(PSTR("Fun\n"), false);
+                break;
+            case _ADJUST:
+                oled_write_P(PSTR("RGB\n"), false);
                 break;
             default:
                 oled_write(get_u8_str(layer, ' '), false);
@@ -282,14 +290,13 @@ bool oled_task_kb(void) {
 
         // Nik Logo
         static const char PROGMEM nik_logo[] = {
-            0x99,0x9a,0x0a,
-            0xb9,0xba,0x0a,
-            0x8a,0x8b,0x8c,0x8d,0xc5,0xc6,0xc7,0xc8,0xc9,0x0a,
-            0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0x03,0x00
+            0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,
+            0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0x00
         };
-
         // clang-format on
-        oled_set_cursor(0, oled_max_lines()-5);
+        oled_set_cursor(0, oled_max_lines()-3);
+        oled_write_P(PSTR(" NIK\n"), false);
+
         oled_write_P(nik_logo, false);
     } else {
         // Elora sigil
