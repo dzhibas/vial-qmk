@@ -20,6 +20,7 @@
 
 #include "spi_master.h"
 #include "matrix.h"
+#include "quantum.h"
 
 #include "myriad.h"
 
@@ -229,20 +230,49 @@ oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
     }
 }
 
+char wpm_str[4];
+enum layers_names {
+    _QWERTY = 0,
+    _DVORAK,
+    _COLEMAK_DH,
+    _NAV,
+    _SYM,
+    _FUNCTION,
+    _ADJUST,
+};
+
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
         return false;
     }
 
     if (is_keyboard_master()) {
-        oled_write_P(PSTR("Nik keyboard\n\n"), false);
+        oled_write_P(PSTR("Hello Nik\n\n"), false);
+
+#ifdef WPM_ENABLE
+        uint8_t n = get_current_wpm();
+        wpm_str[3] = '\0';
+        wpm_str[2] = '0' + n % 10;
+        wpm_str[1] = (n /= 10) % 10 ? '0' + (n) % 10 : (n / 10) % 10 ? '0' : ' ';
+        wpm_str[0] = n / 10 ? '0' + n / 10 : ' ';
+        oled_write_P(PSTR("WPM:"), false);
+        oled_write(wpm_str, false);
+        oled_write_P(PSTR("\n\n"), false);
+#endif
 
         // Keyboard Layer Status
-        // Ideally we'd print the layer name, but no way to know that for sure
-        // Fallback option: just print the layer number
         uint8_t layer = get_highest_layer(layer_state | default_layer_state);
         oled_write_P(PSTR("Layer: "), false);
-        oled_write(get_u8_str(layer, ' '), false);
+        switch (layer) {
+            case _QWERTY:
+                oled_write_P(PSTR("Base\n"), false);
+                break;
+            case _NAV:
+                oled_write_P(PSTR("Nav\n"), false);
+                break;
+            default:
+                oled_write(get_u8_str(layer, ' '), false);
+        }
 
         // Keyboard LED Status
         led_t led_usb_state = host_keyboard_led_state();

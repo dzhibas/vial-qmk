@@ -24,3 +24,4 @@ OLED_DRIVER = ssd1306
 SRC += myriad.c analog.c
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = custom
+

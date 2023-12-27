@@ -6,7 +6,7 @@ Hardware Availability: [splitkb.com](https://splitkb.com).
 
 Make example for this keyboard (after setting up your build environment):
 
-    make splitkb/elora/rev1:default
+    make splitkb/elora/rev1:vial
 
 The keyboard can be flashed by copying the resulting `splitkb_elora_rev1_default.uf2` file onto the `RPI-RP2` flash drive.
 
