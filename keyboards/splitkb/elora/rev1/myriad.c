@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 
 #include "myriad.h"
@@ -46,7 +48,7 @@ static bool myriad_reader(uint8_t *data, uint16_t length) {
     uint8_t last_page_size = length % 256;
 
     for (int i = 0; i < num_pages; i++) {
-        uint8_t reg = 0; // We always start on a page boundary, so this is always zero 
+        uint8_t reg = 0; // We always start on a page boundary, so this is always zero
         uint16_t read_length;
         if (i == num_pages - 1) {
             read_length = last_page_size;
@@ -98,7 +100,7 @@ static bool verify_checksum(uint8_t *data, uint16_t length, uint32_t checksum) {
 
     uint32_t a = 1, b = 0;
     size_t index;
-    
+
     // Process each byte of the data in order
     for (index = 0; index < length; ++index)
     {
@@ -106,7 +108,7 @@ static bool verify_checksum(uint8_t *data, uint16_t length, uint32_t checksum) {
         b = (b + a) % MOD_ADLER;
     }
     uint32_t calculated = ((b << 16) | a);
-    
+
     return calculated == checksum;
 }
 
@@ -287,7 +289,7 @@ void myriad_init(void) {
 
     // Yellow should never be visible - it is here only so we can debug a hang/crash in `detect_myriad`.
     rgblight_sethsv_noeeprom(HSV_YELLOW);
-    wait_ms(1); 
+    wait_ms(1);
     myriad_card_t card = myriad_card_init();
     switch (card) {
         case NONE:
