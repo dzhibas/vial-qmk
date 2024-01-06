@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 
 #include "rev1.h"
@@ -26,6 +27,8 @@
 
 // Needed for early boot
 #include "hardware/xosc.h"
+
+#include "raw_hid.h"
 
 //// Early boot
 
@@ -220,6 +223,22 @@ void encoder_read_pads(uint8_t count, bool pads[]) {
 }
 
 //// Default functionality
+/// allow only 3 lines of screen to be occupied by this buffer
+uint8_t screen_data_buffer[30] = {0};
+bool is_hid_connected = false;
+bool hid_screen_change = false;
+
+void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
+    is_hid_connected = true;
+
+    if (length > 3) {
+       // clear buffer
+       memset((char*)&screen_data_buffer, ' ', 29);
+       // copy it
+       memcpy((char*)&screen_data_buffer, data, 29);
+       hid_screen_change = true;
+    }
+}
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
@@ -287,6 +306,12 @@ bool oled_task_kb(void) {
         oled_write_P(led_usb_state.num_lock ? PSTR(" NUM") : PSTR("    "), false);
         oled_write_P(led_usb_state.caps_lock ? PSTR("CAP") : PSTR("   "), false);
         oled_write_P(led_usb_state.scroll_lock ? PSTR("SCR") : PSTR("   "), false);
+
+        // host machine sends this over usb just 3 lines of buffer
+        if (is_hid_connected && hid_screen_change) {
+            oled_write_P(PSTR((char*)&screen_data_buffer), false);
+            hid_screen_change = false;
+        }
 
         // Nik Logo
         static const char PROGMEM nik_logo[] = {

@@ -39,3 +39,7 @@ VIAL_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
 
 WPM_ENABLE = yes
+
+RAW_ENABLE = yes
+EXTRAFLAGS = -flto
+Link_Time_Optimization = yes
