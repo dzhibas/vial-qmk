@@ -233,9 +233,9 @@ void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
 
     if (length > 3) {
        // clear buffer
-       memset((char*)&screen_data_buffer, ' ', 29);
+       memset((char*)&screen_data_buffer, ' ', 30);
        // copy it
-       memcpy((char*)&screen_data_buffer, data, 29);
+       memcpy((char*)&screen_data_buffer, data, 30);
        hid_screen_change = true;
     }
 }
