@@ -23,5 +23,5 @@ OLED_DRIVER = ssd1306
 # Myriad boilerplate
 SRC += myriad.c analog.c
 POINTING_DEVICE_ENABLE = yes
-POINTING_DEVICE_DRIVER = custom
+POINTING_DEVICE_DRIVER = cirque_pinnacle_spi
 
