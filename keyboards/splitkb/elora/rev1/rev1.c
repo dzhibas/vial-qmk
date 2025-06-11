@@ -4,6 +4,7 @@
 #include "rev1.h"
 #include "spi_master.h"
 #include "myriad.h"
+#include "raw_hid.h"
 
 bool is_oled_enabled = true;
 
