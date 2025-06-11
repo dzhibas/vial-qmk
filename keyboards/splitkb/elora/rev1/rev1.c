@@ -105,6 +105,26 @@ uint8_t encoder_quadrature_read_pin(uint8_t index, bool pad_b) {
     return 0;
 }
 
+/// HID
+
+//// Default functionality
+/// allow only 3 lines of screen to be occupied by this buffer
+uint8_t screen_data_buffer[30] = {0};
+bool is_hid_connected = false;
+bool hid_screen_change = false;
+
+void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
+    is_hid_connected = true;
+
+    if (length > 3) {
+       // clear buffer
+       memset((char*)&screen_data_buffer, ' ', 30);
+       // copy it
+       memcpy((char*)&screen_data_buffer, data, 30);
+       hid_screen_change = true;
+    }
+}
+
 //// Default functionality
 
 #ifdef OLED_ENABLE
@@ -115,6 +135,16 @@ oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
         return OLED_ROTATION_90;
     }
 }
+
+enum layers_names {
+    _QWERTY = 0,
+    _DVORAK,
+    _COLEMAK_DH,
+    _NAV,
+    _SYM,
+    _FUNCTION,
+    _ADJUST,
+};
 
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
@@ -135,8 +165,26 @@ bool oled_task_kb(void) {
         // Ideally we'd print the layer name, but no way to know that for sure
         // Fallback option: just print the layer number
         uint8_t layer = get_highest_layer(layer_state | default_layer_state);
-        oled_write_P(PSTR("Layer: "), false);
-        oled_write(get_u8_str(layer, ' '), false);
+        oled_write_P(PSTR("Layer:"), false);
+        switch (layer) {
+            case _QWERTY:
+                oled_write_P(PSTR("Base\n"), false);
+                break;
+            case _NAV:
+                oled_write_P(PSTR("Nav\n"), false);
+                break;
+             case _SYM:
+                oled_write_P(PSTR("Sym\n"), false);
+                break;
+             case _FUNCTION:
+                oled_write_P(PSTR("Fun\n"), false);
+                break;
+            case _ADJUST:
+                oled_write_P(PSTR("RGB\n"), false);
+                break;
+            default:
+                oled_write(get_u8_str(layer, ' '), false);
+        }
 
         // Keyboard LED Status
         led_t led_state = host_keyboard_led_state();
@@ -144,18 +192,22 @@ bool oled_task_kb(void) {
         oled_write_P(led_state.caps_lock ? PSTR("CAP") : PSTR("   "), false);
         oled_write_P(led_state.scroll_lock ? PSTR("SCR") : PSTR("   "), false);
 
-        // QMK Logo
-        // clang-format off
-        static const char PROGMEM qmk_logo[] = {
-            0x81,0x82,0x83,0x84,0x0a,
-            0xa1,0xa2,0xa3,0xa4,0x85,0x86,0x87,0x88,0x89,0x0a,
-            0xc1,0xc2,0xc3,0xc4,0xa5,0xa6,0xa7,0xa8,0xa9,0x0a,
-            0x8a,0x8b,0x8c,0x8d,0xc5,0xc6,0xc7,0xc8,0xc9,0x0a,
+        // host machine sends this over usb just 3 lines of buffer
+        if (is_hid_connected && hid_screen_change) {
+            oled_write_P(PSTR((char*)&screen_data_buffer), false);
+            hid_screen_change = false;
+        }
+
+        // Nik Logo
+        static const char PROGMEM nik_logo[] = {
+            0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,
             0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0x00
         };
         // clang-format on
-        oled_set_cursor(0, oled_max_lines()-5);
-        oled_write_P(qmk_logo, false);
+        oled_set_cursor(0, oled_max_lines()-3);
+        oled_write_P(PSTR(" NIK\n"), false);
+
+        oled_write_P(nik_logo, false);
     } else {
         // Elora sigil
         // clang-format off
