@@ -160,8 +160,6 @@ bool oled_task_kb(void) {
     }
 
     if (is_keyboard_master()) {
-        oled_write_P(PSTR("Elora rev1\n\n"), false);
-
         // Keyboard Layer Status
         // Ideally we'd print the layer name, but no way to know that for sure
         // Fallback option: just print the layer number
