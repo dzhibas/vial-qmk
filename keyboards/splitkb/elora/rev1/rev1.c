@@ -131,7 +131,7 @@ void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
     if (is_keyboard_left()) {
-        return OLED_ROTATION_270;
+        return OLED_ROTATION_0;
     } else {
         return OLED_ROTATION_180;
     }
@@ -146,6 +146,18 @@ enum layers_names {
     _FUNCTION,
     _ADJUST,
 };
+
+static void draw_line_h(uint8_t x, uint8_t y, uint8_t len) {
+    for (uint8_t i = 0; i < len; i++) {
+        oled_write_pixel(i + x, y, true);
+    }
+}
+
+// static void draw_line_v(uint8_t x, uint8_t y, uint8_t len) {
+//     for (uint8_t i = 0; i < len; i++) {
+//         oled_write_pixel(x, i + y, true);
+//     }
+// }
 
 bool oled_task_kb(void) {
     if (!oled_task_user()) {
@@ -184,12 +196,14 @@ bool oled_task_kb(void) {
             default:
                 oled_write(get_u8_str(layer, ' '), false);
         }
+        draw_line_h(0, 10, 128);
 
         // Keyboard LED Status
         led_t led_state = host_keyboard_led_state();
-        oled_write_P(led_state.num_lock ? PSTR(" NUM") : PSTR("    "), false);
+        oled_set_cursor(oled_max_chars() - 3, 0);
+        // oled_write_P(led_state.num_lock ? PSTR("NUM") : PSTR("   "), false);
         oled_write_P(led_state.caps_lock ? PSTR("CAP") : PSTR("   "), false);
-        oled_write_P(led_state.scroll_lock ? PSTR("SCR") : PSTR("   "), false);
+        // oled_write_P(led_state.scroll_lock ? PSTR("SCR") : PSTR("   "), false);
 
         // host machine sends this over usb just 3 lines of buffer
         if (is_hid_connected && hid_screen_change) {
