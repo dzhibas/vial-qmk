@@ -38,7 +38,7 @@ VIA_ENABLE = yes
 VIAL_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
 
-WPM_ENABLE = yes
+WPM_ENABLE = no
 
 RAW_ENABLE = yes
 EXTRAFLAGS = -flto

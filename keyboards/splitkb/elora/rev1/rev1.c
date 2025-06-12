@@ -207,20 +207,20 @@ bool oled_task_kb(void) {
 
         // host machine sends this over usb just 3 lines of buffer
         if (is_hid_connected && hid_screen_change) {
+            oled_set_cursor(0, 3);
             oled_write_P(PSTR((char*)&screen_data_buffer), false);
             hid_screen_change = false;
         }
 
         // Nik Logo
-        static const char PROGMEM nik_logo[] = {
-            0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,
-            0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0x00
-        };
+        // static const char PROGMEM nik_logo[] = {
+        //     0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,
+        //     0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0x00
+        // };
         // clang-format on
-        oled_set_cursor(0, oled_max_lines()-3);
-        oled_write_P(PSTR(" NIK\n"), false);
-
-        oled_write_P(nik_logo, false);
+        // oled_set_cursor(0, oled_max_lines()-4);
+        // oled_write_P(PSTR("NIK\n"), false);
+        // oled_write_P(nik_logo, false);
     } else {
         // Elora sigil
         // clang-format off
